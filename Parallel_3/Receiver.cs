@@ -5,15 +5,18 @@ using System.Text;
 using System.Threading.Tasks;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using System.Threading;
 
 namespace Parallel_3
 {
     class Receiver
     {
-        public int Receive(string queue)
+        public string Receive(string queue)
         {
             string message = "";
             int number = 0;
+            string type = "";
+            string result = "";
             while (true)
             {
                 var factory = new ConnectionFactory() { HostName = "localhost" };
@@ -31,19 +34,26 @@ namespace Parallel_3
                     {
                         var body = ea.Body;
                         message = Encoding.UTF8.GetString(body);                        
-                        Console.WriteLine("Received {0} from {1}", message, queue);
-                        if (Int32.Parse(message) > number) number = Int32.Parse(message);
-
+                        Console.WriteLine(" Musician {0} received {1}", queue, message);
+                        var split = message.Split('_');
+                        type = split[0];
+                        switch (type)
+                        {
+                            case "1":
+                                if (Int32.Parse(split[1]) > number) number = Int32.Parse(split[1]);
+                                break;
+                        }
+                        
                     };
 
-                    Console.WriteLine("Message {0}", number);
-                    if (message != "") return number;
+                    if (message != "") return type == "1" ? number.ToString() : result;
 
                     channel.BasicConsume(queue: queue,
                                          autoAck: true,
                                          consumer: consumer);
-                    
-                    Console.ReadLine();                    
+
+                    //Console.ReadLine();
+                    Thread.Sleep(3000);
                 }                
             }
         }

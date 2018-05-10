@@ -22,17 +22,12 @@ namespace Parallel_3
                                  autoDelete: false,
                                  arguments: null);
 
-                    //string message = "Hello World!";
                     var body = Encoding.UTF8.GetBytes(message);
-
-                    //var properties = channel.CreateBasicProperties();
-                    //properties.Persistent = true;
 
                     channel.BasicPublish(exchange: "",
                                          routingKey: queue,
                                          basicProperties: null,
                                          body: body);
-                    //Console.WriteLine("Sent {0} to {1}", message, queue);
                 }
             }
         }

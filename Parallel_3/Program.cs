@@ -27,36 +27,14 @@ namespace Parallel_3
                 m.musicians = musicians;
             }
 
-            while(musicians.Count != 0)
+           
+            List<Thread> tList = new List<Thread>();
+            foreach(Musician m in musicians)
             {
-                List<Thread> tList = new List<Thread>();
-                foreach(Musician m in musicians)
-                {
-                    Thread t = new Thread(new ThreadStart(m.ChoosePlayers));
-                    t.Start();
-                    tList.Add(t);
-                }
-
-                foreach(Thread t in tList)
-                {
-                    t.Join();
-                }
-                
-                Console.WriteLine("Next round");
-                List<Musician> new_musicians = new List<Musician>();
-                foreach (Musician m in musicians)
-                {
-                   if(m.isPlaying == true)
-                    {
-                        Console.WriteLine("Musician [{0}, {1}] is playing", m.x, m.y);                        
-                    }
-                    else
-                    {
-                        new_musicians.Add(m);
-                    }
-                }
-                musicians = new_musicians;
+                Thread t = new Thread(new ThreadStart(m.MusicianWork));
+                t.Start();
             }
+            
         }
     }
 }
