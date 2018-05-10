@@ -16,7 +16,9 @@ namespace Parallel_3
             string message = "";
             int number = 0;
             string type = "";
-            string result = "";
+            int count = 0;
+            var split = queue.Split('_');
+            type = split[0];
             while (true)
             {
                 var factory = new ConnectionFactory() { HostName = "localhost" };
@@ -35,18 +37,20 @@ namespace Parallel_3
                         var body = ea.Body;
                         message = Encoding.UTF8.GetString(body);                        
                         Console.WriteLine(" Musician {0} received {1}", queue, message);
-                        var split = message.Split('_');
-                        type = split[0];
+                        
                         switch (type)
                         {
                             case "1":
-                                if (Int32.Parse(split[1]) > number) number = Int32.Parse(split[1]);
+                                if (Int32.Parse(message) > number) number = Int32.Parse(message);
+                                break;
+                            case "2":
+                                count++;
                                 break;
                         }
                         
                     };
 
-                    if (message != "") return type == "1" ? number.ToString() : result;
+                    if (message != "") return type == "1" ? number.ToString() : count.ToString();
 
                     channel.BasicConsume(queue: queue,
                                          autoAck: true,
