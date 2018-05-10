@@ -17,6 +17,7 @@ namespace Parallel_3
             int number = 0;
             string type = "";
             int count = 0;
+            string neigboursToRemove = "";
             var split = queue.Split('_');
             type = split[0];
             while (true)
@@ -46,11 +47,19 @@ namespace Parallel_3
                             case "2":
                                 count++;
                                 break;
+                            case "3":
+                                String.Concat(neigboursToRemove, message);
+                                break;
                         }
                         
                     };
 
-                    if (message != "") return type == "1" ? number.ToString() : count.ToString();
+                    if (message != "")
+                    {
+                        if (type == "1") return number.ToString();
+                        if (type == "2") return count.ToString();
+                        if (type == "3") return neigboursToRemove;
+                    }
 
                     channel.BasicConsume(queue: queue,
                                          autoAck: true,

@@ -13,6 +13,8 @@ namespace Parallel_3
         public int y;
 
         public List<Musician> musicians;
+        List<Musician> neighbours;
+
         public Sender sender;
         public Receiver receiver;
         int round = 0;
@@ -43,11 +45,16 @@ namespace Parallel_3
             Console.WriteLine("Musician {0}{1} is playing", x, y);
             Console.BackgroundColor = ConsoleColor.Black;
             Thread.Sleep(2000);
+            foreach(Musician neigbour in neighbours)
+            {
+                sender.Send(String.Format("{0}{1}", x, y), String.Format("3_{0}{1}", neigbour.x, neigbour.y));
+            }
             musicians.Remove(this);
         }
 
         public void MusicianWork()
         {
+            neighbours = findNeigbours(this);
             while (true)
             {
                 round++;
@@ -58,13 +65,6 @@ namespace Parallel_3
                 Random rnd = new Random(seed);
                 int random = rnd.Next(1000000);
                 Console.WriteLine("Musicians {0}{1} random {2}", x, y, random);
-
-                List<Musician> neighbours = findNeigbours(this);
-                if (neighbours.Count == 0)
-                {
-                    musicianPlay();
-                    break;
-                }
 
                 foreach (Musician neigbour in neighbours)
                 {
@@ -78,17 +78,11 @@ namespace Parallel_3
                     musicianPlay();
                     break;
                 }
-
-                neighbours = findNeigbours(this);
-                if (neighbours.Count == 0)
-                {
-                    musicianPlay();
-                    break;
-                }
                 
                 foreach (Musician neigbour in neighbours)
                 {
                     sender.Send(String.Format("1"), String.Format("2_{0}{1}", neigbour.x, neigbour.y));
+                    Console.WriteLine("Musician {0}{1} send message to 2_{2}{3}",x, y, neigbour.x, neigbour.y);
                 }
 
                 int loser_neighbour_count = Int32.Parse(receiver.Receive(String.Format("2_{0}{1}", x, y)));
@@ -98,7 +92,21 @@ namespace Parallel_3
                     musicianPlay();
                     break;
                 }
-               
+                
+                string neigboursToRemove = receiver.Receive(String.Format("3_{0}{1}", x, y));
+                for(int i=0; i < neigboursToRemove.Length / 2; i+=2)
+                {
+                    int _x = neigboursToRemove[i];
+                    int _y = neigboursToRemove[i+1];
+                    neighbours.Remove(new Musician(_x, _y, sender, receiver));
+                }
+
+                if (neighbours.Count == 0)
+                {
+                    musicianPlay();
+                    break;
+                }
+                //todo edge case when both neigbours are losers
             }
         }
 
